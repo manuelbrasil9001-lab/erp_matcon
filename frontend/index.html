@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERP MatCon — Materiais de Construção</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f5f3;--surface:#fff;--border:#e5e5e3;
+  --text:#1a1a18;--muted:#6b6b68;--hint:#a0a09d;
+  --blue:#1a6fc4;--blue-bg:#e8f1fb;
+  --green:#2d6a1f;--green-bg:#eaf3de;
+  --amber:#8a5200;--amber-bg:#fef3e2;
+  --red:#b52a2a;--red-bg:#fdecea;
+  --gray:#f0efe8;--r:8px;--rl:12px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.5}
+input,select,textarea{font-family:inherit;font-size:13px;border:1px solid var(--border);border-radius:var(--r);padding:7px 10px;width:100%;outline:none;background:var(--surface);color:var(--text)}
+input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 2px #1a6fc420}
+button{font-family:inherit;font-size:12px;border:1px solid var(--border);border-radius:var(--r);padding:7px 14px;background:var(--surface);color:var(--text);cursor:pointer}
+button:hover{background:var(--gray)}
+button.btn-ok{background:var(--green-bg);color:var(--green);border-color:transparent;font-weight:500}
+button.btn-ok:hover{opacity:.85}
+button.btn-danger{background:var(--red-bg);color:var(--red);border-color:transparent}
+.badge{display:inline-block;font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px}
+.b-ok{background:var(--green-bg);color:var(--green)}
+.b-warn{background:var(--amber-bg);color:var(--amber)}
+.b-err{background:var(--red-bg);color:var(--red)}
+.b-info{background:var(--blue-bg);color:var(--blue)}
+.b-gray{background:var(--gray);color:var(--muted)}
+/* LAYOUT */
+.app{display:grid;grid-template-columns:200px 1fr;min-height:100vh}
+.side{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.logo-area{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.logo-ic{width:30px;height:30px;background:var(--blue-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.logo-nm{font-size:13px;font-weight:600;line-height:1.2}
+.logo-sb{font-size:10px;color:var(--hint)}
+nav{padding:8px;flex:1}
+.nav-grp{font-size:9px;font-weight:600;color:var(--hint);text-transform:uppercase;letter-spacing:.07em;padding:10px 8px 4px}
+.nav-btn{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--r);font-size:12px;color:var(--muted);cursor:pointer;user-select:none;margin-bottom:1px}
+.nav-btn:hover{background:var(--bg);color:var(--text)}
+.nav-btn.on{background:var(--blue-bg);color:var(--blue);font-weight:600}
+.nav-ico{font-size:14px;width:16px;text-align:center}
+.nav-badge{margin-left:auto;font-size:9px;padding:1px 5px;border-radius:20px;background:var(--red-bg);color:var(--red)}
+.side-foot{padding:8px;border-top:1px solid var(--border)}
+/* MAIN */
+.main{display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 18px;display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:10}
+.topbar-title{font-size:14px;font-weight:600;flex:1}
+.ct{padding:16px 18px;flex:1;overflow-y:auto}
+/* TELAS */
+.tela{display:none}
+.tela.on{display:block}
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:14px}
+.card-title{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+/* GRIDS */
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.met{background:var(--gray);border-radius:var(--r);padding:12px 14px}
+.met-label{font-size:10px;color:var(--muted);margin-bottom:4px}
+.met-valor{font-size:22px;font-weight:600}
+.met-delta{font-size:10px;color:var(--muted);margin-top:3px}
+/* TABELAS */
+.tbl{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:var(--gray);padding:8px 12px;text-align:left;font-size:10px;font-weight:600;color:var(--muted);border-bottom:1px solid var(--border)}
+td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafaf8}
+.ncm{font-size:10px;color:var(--hint);font-family:monospace}
+/* BARRAS */
+.brow{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:12px}
+.blab{width:88px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+.btrack{flex:1;height:6px;background:var(--gray);border-radius:3px;overflow:hidden}
+.bfill{height:100%;border-radius:3px}
+.bval{width:60px;text-align:right;font-size:11px;font-weight:600}
+/* PDV */
+.pdv-wrap{display:grid;grid-template-columns:1fr 290px;gap:12px}
+.sug-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);max-height:200px;overflow-y:auto;display:none}
+.sug-item{padding:9px 12px;cursor:pointer;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center}
+.sug-item:hover{background:var(--gray)}
+.sug-item:last-child{border-bottom:none}
+.qtd-ctrl{display:flex;align-items:center;gap:4px}
+.qtd-ctrl button{width:22px;height:22px;padding:0;font-size:14px;border-radius:6px}
+.qtd-ctrl input{width:44px;text-align:center;padding:3px;font-size:12px}
+/* USUÁRIOS */
+.usr-wrap{display:grid;grid-template-columns:260px 1fr;gap:14px;min-height:480px}
+.usr-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r);cursor:pointer;background:var(--surface);margin-bottom:4px}
+.usr-item:hover{background:var(--gray)}
+.usr-item.sel{border-color:var(--blue);background:var(--blue-bg)}
+.usr-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#fff;flex-shrink:0}
+.role-opt{border:2px solid var(--border);border-radius:var(--r);padding:10px 8px;text-align:center;cursor:pointer}
+.role-opt:hover{background:var(--gray)}
+.role-opt.sel{border-color:var(--blue);background:var(--blue-bg)}
+.mod-row{display:flex;align-items:center;padding:9px 12px;border-bottom:1px solid var(--border);gap:10px}
+.mod-row:last-child{border-bottom:none}
+.mod-row:hover{background:var(--gray)}
+.tog{position:relative;width:38px;height:22px;border-radius:11px;border:none;cursor:pointer;transition:.2s;flex-shrink:0}
+.tog.on{background:var(--green)}
+.tog.off{background:#ccc}
+.tog::after{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:3px;transition:.2s}
+.tog.on::after{left:19px}
+.tog.off::after{left:3px}
+/* LOGIN */
+#ov-login{position:fixed;inset:0;background:var(--bg);z-index:9000;display:flex;align-items:center;justify-content:center}
+.login-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:32px;width:360px;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.lfield{margin-bottom:14px}
+.lfield label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
+.lfield input{font-size:14px}
+.lerr{background:var(--red-bg);color:var(--red);border-radius:var(--r);padding:9px 12px;font-size:12px;margin-top:10px;display:none}
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9500;display:none;align-items:center;justify-content:center}
+.modal-box{background:var(--surface);border-radius:var(--rl);padding:24px;width:360px;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+/* MISC */
+.ph{padding:32px;text-align:center;color:var(--hint);font-size:12px}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle}
+@keyframes sp{to{transform:rotate(360deg)}}
+#toast{position:fixed;bottom:18px;right:18px;padding:11px 18px;border-radius:var(--rl);font-size:13px;font-weight:500;z-index:9999;max-width:380px;display:none;box-shadow:0 4px 16px rgba(0,0,0,.12);border:1px solid var(--border)}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ──────────────────────────────────────────── -->
+<div id="ov-login">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="logo-ic" style="width:40px;height:40px;font-size:22px">🏗️</div>
+      <div>
+        <div style="font-size:16px;font-weight:700">MatCon ERP</div>
+        <div style="font-size:11px;color:var(--hint)">Materiais de Construção · Curitiba PR</div>
+      </div>
+    </div>
+    <div class="lfield"><label>E-mail</label>
+      <input type="email" id="li-email" placeholder="admin@matcon.com.br" onkeydown="if(event.key==='Enter')fazerLogin()"/>
+    </div>
+    <div class="lfield"><label>Senha</label>
+      <input type="password" id="li-senha" placeholder="••••••••" onkeydown="if(event.key==='Enter')fazerLogin()"/>
+    </div>
+    <button class="btn-ok" id="li-btn" onclick="fazerLogin()" style="width:100%;padding:11px;font-size:14px;margin-top:4px">
+      Entrar no sistema
+    </button>
+    <div class="lerr" id="li-err"></div>
+    <div style="font-size:10px;color:var(--hint);text-align:center;margin-top:16px">
+      admin@matcon.com.br · admin123
+    </div>
+    <div id="api-url-info" style="font-size:10px;color:var(--hint);text-align:center;margin-top:6px;word-break:break-all">
+      API: <span id="api-url-show"></span>
+    </div>
+    <script>document.getElementById('api-url-show').textContent=BASE;</script>
+  </div>
+</div>
+
+<!-- ── MODAL TROCAR SENHA (primeiro login) ────────────── -->
+<div class="modal-bg" id="ov-senha">
+  <div class="modal-box">
+    <div style="font-size:15px;font-weight:600;margin-bottom:6px">🔐 Troque sua senha</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;background:var(--amber-bg);padding:8px 10px;border-radius:var(--r);line-height:1.5">
+      Primeiro acesso detectado. Defina uma nova senha para continuar.
+    </div>
+    <div class="lfield"><label>Senha atual</label><input type="password" id="ts-atual"/></div>
+    <div class="lfield"><label>Nova senha (mín. 6 caracteres)</label><input type="password" id="ts-nova"/></div>
+    <div class="lfield"><label>Confirmar nova senha</label><input type="password" id="ts-conf" onkeydown="if(event.key==='Enter')trocarSenha()"/></div>
+    <button class="btn-ok" onclick="trocarSenha()" style="width:100%;padding:10px">Salvar nova senha</button>
+    <div class="lerr" id="ts-err" style="margin-top:8px"></div>
+  </div>
+</div>
+
+<!-- ── MODAL RESET SENHA (admin) ──────────────────────── -->
+<div class="modal-bg" id="ov-reset">
+  <div class="modal-box">
+    <div style="font-size:15px;font-weight:600;margin-bottom:6px">🔑 Restaurar Senha</div>
+    <div id="reset-alvo" style="font-size:12px;color:var(--muted);margin-bottom:16px"></div>
+    <div class="lfield"><label>Nova senha</label><input type="password" id="r-nova"/></div>
+    <div class="lfield"><label>Confirmar</label><input type="password" id="r-conf" onkeydown="if(event.key==='Enter')confirmarReset()"/></div>
+    <div style="background:var(--amber-bg);color:var(--amber);padding:8px 10px;border-radius:var(--r);font-size:11px;margin-bottom:12px">
+      ⚠️ Usuário deverá trocar a senha no próximo login.
+    </div>
+    <div class="lerr" id="r-err" style="margin-top:0;margin-bottom:10px"></div>
+    <div style="display:flex;gap:8px">
+      <button onclick="fecharReset()" style="flex:1;padding:9px">Cancelar</button>
+      <button class="btn-ok" onclick="confirmarReset()" style="flex:1;padding:9px">Restaurar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── APP ────────────────────────────────────────────── -->
+<div class="app">
+  <aside class="side">
+    <div class="logo-area">
+      <div class="logo-ic">🏗️</div>
+      <div><div class="logo-nm">MatCon ERP</div><div class="logo-sb">Curitiba · PR</div></div>
+    </div>
+    <nav>
+      <div class="nav-grp">Principal</div>
+      <div class="nav-btn on" id="nb-dash" onclick="ir('dash',this)"><span class="nav-ico">📊</span>Dashboard</div>
+      <div class="nav-btn" id="nb-pdv"  onclick="ir('pdv',this)"><span class="nav-ico">🖥️</span>PDV / Caixa</div>
+      <div class="nav-grp">Fiscal</div>
+      <div class="nav-btn" id="nb-fiscal" onclick="ir('fiscal',this)">
+        <span class="nav-ico">📄</span>Documentos
+        <span class="nav-badge" id="bdg-nfe" style="display:none">0</span>
+      </div>
+      <div class="nav-grp">Operações</div>
+      <div class="nav-btn" id="nb-estoque" onclick="ir('estoque',this)">
+        <span class="nav-ico">📦</span>Estoque
+        <span class="nav-badge" id="bdg-est" style="display:none">0</span>
+      </div>
+      <div class="nav-btn" id="nb-produtos"  onclick="ir('produtos',this)"><span class="nav-ico">🔧</span>Produtos</div>
+      <div class="nav-btn" id="nb-clientes"  onclick="ir('clientes',this)"><span class="nav-ico">👤</span>Clientes</div>
+      <div class="nav-grp">Sistema</div>
+      <div class="nav-btn" id="nb-usuarios" onclick="ir('usuarios',this)" style="display:none"><span class="nav-ico">👥</span>Usuários</div>
+      <div class="nav-btn" id="nb-config"   onclick="ir('config',this)"><span class="nav-ico">⚙️</span>Configurações</div>
+    </nav>
+    <div class="side-foot">
+      <div class="nav-btn" style="cursor:default">
+        <span class="nav-ico">👷</span>
+        <span id="usr-nome-side" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</span>
+      </div>
+      <div style="display:flex;gap:4px;margin-top:4px">
+        <button onclick="abrirTrocarSenha()" style="flex:1;font-size:10px;padding:5px">🔑 Senha</button>
+        <button onclick="logout()" style="flex:1;font-size:10px;padding:5px;color:var(--red);border-color:var(--red-bg)">Sair</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <span class="topbar-title" id="topbar-title">Dashboard</span>
+      <span class="badge b-warn" id="bling-badge">Bling: simulação</span>
+      <span class="badge b-gray" id="rel-hora">--:--</span>
+    </div>
+    <div class="ct">
+
+<!-- ═══ DASHBOARD ═══ -->
+<div class="tela on" id="t-dash">
+  <div class="grid4" id="el-metricas">
+    <div class="met"><div class="met-label">Carregando...</div><div class="met-valor"><span class="spin"></span></div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div class="card">
+      <div class="card-title">Últimas vendas</div>
+      <div id="el-ultimas"><div class="ph"><span class="spin"></span></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Pagamentos</div>
+      <div id="el-pgto"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PDV ═══ -->
+<div class="tela" id="t-pdv">
+  <div class="pdv-wrap">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;gap:8px">
+        <input id="pdv-busca" placeholder="Buscar produto por nome ou SKU..." oninput="pdvBuscar(this.value)" autocomplete="off" style="flex:1"/>
+        <button onclick="carrinho=[];renderCarrinho()">Limpar</button>
+      </div>
+      <div class="sug-box" id="pdv-sugs"></div>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Produto / NCM</th><th>Un.</th><th style="width:90px">Qtd.</th><th>Unitário</th><th>Total</th><th></th></tr></thead>
+          <tbody id="pdv-cart"><tr><td colspan="6" class="ph">Nenhum item. Busque acima.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <!-- CPF na nota -->
+      <div class="card">
+        <div class="card-title">Nota Paraná</div>
+        <div style="display:flex;gap:6px;margin-bottom:8px">
+          <button id="cpf-sim" class="btn-ok" onclick="pdvCpf(true)" style="flex:1;font-size:11px">CPF na nota</button>
+          <button id="cpf-nao" onclick="pdvCpf(false)" style="flex:1;font-size:11px">Sem CPF</button>
+        </div>
+        <div id="cpf-wrap"><input id="pdv-cpf" placeholder="CPF ou CNPJ" oninput="maskDoc(this)" maxlength="18"/></div>
+        <div style="font-size:10px;color:var(--hint);margin-top:5px">Dec. 1.094/2019</div>
+      </div>
+      <!-- Documento -->
+      <div class="card">
+        <div class="card-title">Documento fiscal</div>
+        <select id="pdv-tipodoc" onchange="pdvAtualizaTotais()">
+          <option value="nfce">NFC-e — Modelo 65 (Balcão)</option>
+          <option value="nfe">NF-e — Modelo 55 (Entrega)</option>
+        </select>
+      </div>
+      <!-- Pagamento -->
+      <div class="card">
+        <div class="card-title">Pagamento</div>
+        <select id="pdv-pgto" style="margin-bottom:8px">
+          <option value="pix_dinamico">PIX Dinâmico</option>
+          <option value="cartao_debito">Cartão Débito</option>
+          <option value="cartao_credito">Cartão Crédito</option>
+          <option value="dinheiro">Dinheiro</option>
+          <option value="boleto">Boleto</option>
+        </select>
+        <div style="text-align:center">
+          <svg id="pdv-qr" width="90" height="90" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto 6px"></svg>
+          <div id="pdv-qrlbl" style="font-size:11px;color:var(--muted)">PIX · aguardando valor</div>
+        </div>
+      </div>
+      <!-- Totais -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px">
+          <span style="color:var(--muted)">Subtotal</span><span id="pdv-sub">R$ 0,00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:18px;font-weight:600;padding-top:8px;border-top:1px solid var(--border);margin-top:4px">
+          <span>Total</span><span id="pdv-tot">R$ 0,00</span>
+        </div>
+        <button class="btn-ok" id="pdv-btn" onclick="pdvEmitir()" style="width:100%;margin-top:10px;padding:11px;font-size:13px">
+          Finalizar — Emitir NFC-e
+        </button>
+        <div id="pdv-status" style="font-size:11px;text-align:center;color:var(--hint);margin-top:6px">Pronto</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FISCAL ═══ -->
+<div class="tela" id="t-fiscal">
+  <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+    <button id="flt-all"  class="btn-ok" onclick="fiscalFiltrar('')">Todos</button>
+    <button id="flt-aut"  onclick="fiscalFiltrar('autorizada')">Autorizadas</button>
+    <button id="flt-pend" onclick="fiscalFiltrar('pendente')">Pendentes</button>
+    <button id="flt-rej"  onclick="fiscalFiltrar('rejeitada')">Rejeitadas</button>
+    <button onclick="carregarFiscal()" style="margin-left:auto">↻ Atualizar</button>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Tipo</th><th>Número</th><th>Cliente</th><th>Total</th><th>Operador</th><th>Data</th><th>Status</th><th>Ações</th></tr></thead>
+      <tbody id="fiscal-tbody"><tr><td colspan="8" class="ph"><span class="spin"></span></td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ ESTOQUE ═══ -->
+<div class="tela" id="t-estoque">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Produto</th><th>Un.</th><th>Saldo</th><th>Status</th></tr></thead>
+        <tbody id="est-tbody"><tr><td colspan="4" class="ph"><span class="spin"></span></td></tr></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Movimentações recentes</div>
+      <div id="est-movs"><div class="ph"><span class="spin"></span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PRODUTOS ═══ -->
+<div class="tela" id="t-produtos">
+  <div style="display:flex;gap:8px;margin-bottom:12px">
+    <input id="prod-busca" placeholder="Buscar por nome ou SKU..." oninput="carregarProdutos(this.value)" style="flex:1;max-width:320px"/>
+    <button class="btn-ok" onclick="abrirModalProduto()">+ Novo produto</button>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>SKU</th><th>Nome</th><th>NCM</th><th>Un.</th><th>Estoque</th><th>R$ Venda</th><th>Status</th></tr></thead>
+      <tbody id="prod-tbody"><tr><td colspan="7" class="ph"><span class="spin"></span></td></tr></tbody>
+    </table>
+  </div>
+  <!-- Modal Produto -->
+  <div class="modal-bg" id="ov-produto">
+    <div class="modal-box" style="width:480px">
+      <div style="font-size:15px;font-weight:600;margin-bottom:16px">Novo Produto</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="grid-column:1/-1"><label style="font-size:10px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">NOME *</label><input id="np-nome" placeholder="Cimento CP-II 50kg"/></div>
+        <div><label style="font-size:10px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">SKU *</label><input id="np-sku" placeholder="CIM-CP2-50"/></div>
+        <div><label style="font-size:10px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">NCM *</label><input id="np-ncm" placeholder="25232900" maxlength="8"/></div>
+        <div><label style="font-size:10px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">CFOP</label><input id="np-cfop" value="5102" maxlength="4"/></div>
+        <div><label style="font-size:10px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">CSOSN</label><input id="np-csosn" value="400" maxlength="4"/></div>
+        <div><label style="font-size:10px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">UNIDADE *</label>
+          <select id="np-un"><option>SC</option><option>UN</option><option>KG</option><option>M2</option><option>M3</option><option>MI</option><option>CX</option><option>RL</option></select>
+        </div>
+        <div><label style="font-size:10px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">CATEGORIA</label><input id="np-cat" placeholder="Cimento/Argamassa"/></div>
+        <div><label style="font-size:10px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">CUSTO</label><input id="np-custo" type="number" step="0.01" placeholder="0.00"/></div>
+        <div><label style="font-size:10px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">PREÇO VENDA *</label><input id="np-venda" type="number" step="0.01" placeholder="0.00"/></div>
+        <div><label style="font-size:10px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">ESTOQUE</label><input id="np-estoque" type="number" step="0.001" value="0"/></div>
+        <div><label style="font-size:10px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">ESTOQUE MÍN.</label><input id="np-estmin" type="number" step="0.001" value="0"/></div>
+      </div>
+      <div class="lerr" id="np-err" style="margin:10px 0 0"></div>
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button onclick="fecharModalProduto()" style="flex:1;padding:9px">Cancelar</button>
+        <button class="btn-ok" onclick="salvarProduto()" style="flex:1;padding:9px">Salvar produto</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CLIENTES ═══ -->
+<div class="tela" id="t-clientes">
+  <div style="margin-bottom:12px">
+    <input placeholder="Buscar por nome ou CPF/CNPJ..." oninput="carregarClientes(this.value)" style="max-width:320px"/>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Nome</th><th>CPF/CNPJ</th><th>Tipo</th><th>Cidade</th><th>Telefone</th></tr></thead>
+      <tbody id="cli-tbody"><tr><td colspan="5" class="ph"><span class="spin"></span></td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ USUÁRIOS ═══ -->
+<div class="tela" id="t-usuarios">
+  <div class="usr-wrap">
+    <!-- Lista -->
+    <div>
+      <button class="btn-ok" onclick="usrAbrirForm(null)" style="width:100%;padding:10px;margin-bottom:10px;font-size:13px">+ Novo Usuário</button>
+      <div id="usr-lista"><div class="ph"><span class="spin"></span></div></div>
+    </div>
+    <!-- Painel direito -->
+    <div id="usr-painel">
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:400px;gap:12px;color:var(--hint)">
+        <div style="font-size:48px">👥</div>
+        <div style="font-size:13px;font-weight:600;color:var(--muted)">Gestão de Usuários</div>
+        <div style="font-size:12px;text-align:center;max-width:240px;line-height:1.6">Selecione um usuário ou clique em Novo Usuário para começar.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CONFIGURAÇÕES ═══ -->
+<div class="tela" id="t-config">
+  <div class="card" style="max-width:480px">
+    <div class="card-title">Integração Bling API v3</div>
+    <div class="lfield">
+      <label>Access Token OAuth2</label>
+      <input id="cfg-token" type="password" placeholder="Cole o token aqui..." style="font-family:monospace"/>
+    </div>
+    <div style="font-size:11px;color:var(--hint);margin-bottom:12px">
+      Obtenha em: bling.com.br → Configurações → Integrações → API v3
+    </div>
+    <button class="btn-ok" onclick="salvarBling()" style="margin-bottom:14px">Salvar e conectar</button>
+    <div id="cfg-status" style="font-size:12px;padding:10px;background:var(--gray);border-radius:var(--r)">
+      Modo simulação ativo — notas emitidas com chave fictícia.
+    </div>
+  </div>
+</div>
+
+    </div><!-- /ct -->
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// =============================================================================
+// ERP MatCon — Script único e definitivo
+// =============================================================================
+'use strict';
+
+// Em produção (Vercel), o backend está no Railway
+// Configure VITE_API_URL ou API_URL no painel da Vercel
+// Fallback: mesmo origin (funciona em dev local)
+const BASE = (
+  window._API_URL ||               // injetado pelo vercel.json
+  window.ENV_API_URL ||             // variável de ambiente injetada
+  'https://erp-matcon-api.railway.app' // <<< TROQUE pela URL do seu Railway
+  // Para desenvolvimento local, mude para: 'http://localhost:7821'
+);
+
+// ── ESTADO ───────────────────────────────────────────────────────────────────
+let TOKEN   = localStorage.getItem('erp_token') || '';
+let USUARIO = null;
+let carrinho = [];
+let produtos = [];
+let filtroFiscal = '';
+let usrEditId = null;
+let usrPerms  = {};
+let usrRole   = 'vendedor';
+let usrRolesCache = null;
+let usrCache  = [];
+let resetId   = null;
+let cpfAtivo  = true;
+
+// ── HTTP ─────────────────────────────────────────────────────────────────────
+function hdr() {
+  const h = {'Content-Type':'application/json'};
+  if (TOKEN) h['Authorization'] = 'Bearer ' + TOKEN;
+  return h;
+}
+
+async function req(method, path, body) {
+  const opts = {method, headers: hdr()};
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(BASE + path, opts);
+  if (r.status === 401) { logout(); throw new Error('401'); }
+  return r;
+}
+
+async function get(path)        { return (await req('GET', path)).json(); }
+async function post(path, body) { const r = await req('POST', path, body); const d = await r.json(); if (!r.ok) throw new Error(d.detail || r.statusText); return d; }
+async function put_(path, body) { const r = await req('PUT',  path, body); const d = await r.json(); if (!r.ok) throw new Error(d.detail || r.statusText); return d; }
+async function del_(path)       { const r = await req('DELETE', path);     const d = await r.json(); if (!r.ok) throw new Error(d.detail || r.statusText); return d; }
+
+// ── UTILITÁRIOS ───────────────────────────────────────────────────────────────
+function R$(v)    { return 'R$ ' + Number(v||0).toFixed(2).replace('.',','); }
+function dt(s)    { return new Date(s).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}); }
+
+function toast(msg, tipo) {
+  const el = document.getElementById('toast');
+  const cores = {ok:'#eaf3de',err:'#fdecea',warn:'#fef3e2'};
+  const texts = {ok:'#2d6a1f',err:'#b52a2a',warn:'#8a5200'};
+  el.textContent = msg;
+  el.style.cssText = `display:block;background:${cores[tipo]||cores.ok};color:${texts[tipo]||texts.ok};border-color:${cores[tipo]||cores.ok}`;
+  clearTimeout(el._t); el._t = setTimeout(() => el.style.display='none', 4500);
+}
+
+function el(id) { return document.getElementById(id); }
+function html(id, c) { const e = el(id); if(e) e.innerHTML = c; }
+
+setInterval(() => { const e = el('rel-hora'); if(e) e.textContent = new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }, 1000);
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+async function initAuth() {
+  el('ov-login').style.display = TOKEN ? 'none' : 'flex';
+  if (!TOKEN) return;
+
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 5000);
+  try {
+    const r = await fetch(BASE + '/api/auth/me', {headers: hdr(), signal: ctrl.signal});
+    clearTimeout(timer);
+    if (!r.ok) { TOKEN=''; localStorage.removeItem('erp_token'); el('ov-login').style.display='flex'; return; }
+    USUARIO = await r.json();
+    aplicarSessao();
+    carregarDashboard();
+    carregarProdutos_pdv();
+  } catch(e) {
+    clearTimeout(timer);
+    TOKEN=''; localStorage.removeItem('erp_token');
+    el('ov-login').style.display = 'flex';
+  }
+}
+
+function aplicarSessao() {
+  el('ov-login').style.display = 'none';
+  const nome = el('usr-nome-side');
+  if (nome) nome.textContent = USUARIO.nome_operador || USUARIO.nome;
+  // Mostrar/ocultar menu usuários
+  const p = USUARIO.permissoes || {};
+  if (p.usuarios && p.usuarios.visualizar) el('nb-usuarios').style.display = '';
+  // Primeiro login
+  if (USUARIO.primeiro_login) setTimeout(() => el('ov-senha').style.display='flex', 300);
+}
+
+async function fazerLogin() {
+  const email = el('li-email').value.trim();
+  const senha = el('li-senha').value;
+  const btn   = el('li-btn');
+  const err   = el('li-err');
+  err.style.display = 'none';
+  if (!email || !senha) { err.textContent='Preencha e-mail e senha.'; err.style.display='block'; return; }
+  btn.textContent = 'Entrando...'; btn.disabled = true;
+  try {
+    const r = await fetch(BASE+'/api/auth/login', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email, senha})});
+    const d = await r.json();
+    if (!r.ok) { err.textContent = d.detail||'E-mail ou senha incorretos.'; err.style.display='block'; return; }
+    TOKEN   = d.access_token;
+    USUARIO = d.usuario;
+    localStorage.setItem('erp_token', TOKEN);
+    aplicarSessao();
+    carregarDashboard();
+    carregarProdutos_pdv();
+  } catch(e) {
+    err.textContent = 'Erro de conexão. Verifique se o servidor está rodando (python run.py).';
+    err.style.display = 'block';
+  } finally { btn.textContent='Entrar no sistema'; btn.disabled=false; }
+}
+
+function logout() {
+  TOKEN=''; USUARIO=null;
+  localStorage.removeItem('erp_token');
+  location.reload();
+}
+
+function abrirTrocarSenha() { el('ov-senha').style.display='flex'; }
+
+async function trocarSenha() {
+  const atual = el('ts-atual').value;
+  const nova  = el('ts-nova').value;
+  const conf  = el('ts-conf').value;
+  const err   = el('ts-err');
+  err.style.display = 'none';
+  if (nova.length < 6) { err.textContent='Mínimo 6 caracteres.'; err.style.display='block'; return; }
+  if (nova !== conf)   { err.textContent='Senhas não coincidem.'; err.style.display='block'; return; }
+  try {
+    await post('/api/auth/trocar-senha', {senha_atual:atual, nova_senha:nova});
+    el('ov-senha').style.display = 'none';
+    USUARIO.primeiro_login = false;
+    toast('✅ Senha alterada com sucesso!', 'ok');
+  } catch(e) { err.textContent=e.message; err.style.display='block'; }
+}
+
+// ── NAVEGAÇÃO ─────────────────────────────────────────────────────────────────
+const TITULOS = {dash:'Dashboard',pdv:'PDV — Caixa',fiscal:'Documentos Fiscais',
+  estoque:'Estoque Omnichannel',produtos:'Produtos',clientes:'Clientes',
+  usuarios:'Gestão de Usuários',config:'Configurações'};
+
+function ir(tela, btn) {
+  document.querySelectorAll('.tela').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
+  const tel = el('t-'+tela);
+  if (tel) tel.classList.add('on');
+  if (btn) btn.classList.add('on');
+  const tt = el('topbar-title'); if(tt) tt.textContent = TITULOS[tela]||tela;
+  if (tela==='dash')     carregarDashboard();
+  if (tela==='fiscal')   carregarFiscal();
+  if (tela==='estoque')  carregarEstoque();
+  if (tela==='produtos') carregarProdutos('');
+  if (tela==='clientes') carregarClientes('');
+  if (tela==='usuarios') usrCarregar();
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+async function carregarDashboard() {
+  try {
+    const d = await get('/api/dashboard');
+    const m = d.metricas;
+    // Badges
+    const bn = el('bdg-nfe'); if(bn){ bn.textContent=m.nfe_pendentes; bn.style.display=m.nfe_pendentes>0?'':'none'; }
+    const be = el('bdg-est'); if(be){ be.textContent=m.estoque_critico; be.style.display=m.estoque_critico>0?'':'none'; }
+    // Métricas
+    html('el-metricas', `
+      <div class="met"><div class="met-label">Vendas hoje</div><div class="met-valor">${R$(m.vendas_hoje)}</div><div class="met-delta">Dia atual</div></div>
+      <div class="met"><div class="met-label">Pedidos abertos</div><div class="met-valor">${m.pedidos_abertos}</div><div class="met-delta">Aguardando</div></div>
+      <div class="met"><div class="met-label" style="color:${m.nfe_pendentes>0?'var(--red)':''}">NF-e pendentes</div>
+        <div class="met-valor" style="color:${m.nfe_pendentes>0?'var(--red)':''}">${m.nfe_pendentes}</div>
+        <div class="met-delta">${m.nfe_pendentes>0?'Ação necessária':'OK'}</div></div>
+      <div class="met"><div class="met-label" style="color:${m.estoque_critico>0?'var(--amber)':''}">Estoque crítico</div>
+        <div class="met-valor" style="color:${m.estoque_critico>0?'var(--amber)':''}">${m.estoque_critico}</div>
+        <div class="met-delta">${m.estoque_critico>0?'Abaixo do mín':'OK'}</div></div>
+    `);
+    // Últimas vendas
+    html('el-ultimas', d.ultimas_vendas.length ? d.ultimas_vendas.map(v=>`
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
+        <span class="badge ${v.status_fiscal==='autorizada'?'b-ok':v.status_fiscal==='rejeitada'?'b-err':'b-warn'}">${v.tipo_doc.toUpperCase()}</span>
+        <span style="flex:1">${v.cliente}</span>
+        <span style="font-weight:600">${R$(v.total)}</span>
+        <span style="font-size:10px;color:var(--hint)">${v.operador_nome||''}</span>
+      </div>`).join('') : '<div class="ph">Sem vendas hoje</div>');
+    // Pagamentos
+    const tot = d.pgto_distribuicao.reduce((a,x)=>a+x.qtd,0)||1;
+    const CORES = {pix_dinamico:'#1d9e75',cartao_debito:'#378add',cartao_credito:'#7f77dd',dinheiro:'#888',boleto:'#ef9f27'};
+    const NOMES = {pix_dinamico:'PIX',cartao_debito:'Débito',cartao_credito:'Crédito',dinheiro:'Dinheiro',boleto:'Boleto'};
+    html('el-pgto', d.pgto_distribuicao.map(p=>`
+      <div class="brow">
+        <span class="blab">${NOMES[p.tipo]||p.tipo}</span>
+        <div class="btrack"><div class="bfill" style="width:${Math.round(p.qtd/tot*100)}%;background:${CORES[p.tipo]||'#888'}"></div></div>
+        <span class="bval">${p.qtd} venda${p.qtd!==1?'s':''}</span>
+      </div>`).join('') || '<div class="ph">Sem dados</div>');
+  } catch(e) { toast('Erro no dashboard: '+e.message,'err'); }
+}
+
+// ── PDV ───────────────────────────────────────────────────────────────────────
+async function carregarProdutos_pdv() {
+  try { produtos = await get('/api/produtos'); } catch(e) {}
+}
+
+function pdvBuscar(q) {
+  const sg = el('pdv-sugs');
+  if (!q || q.length < 1) { sg.style.display='none'; return; }
+  const res = produtos.filter(p =>
+    p.nome.toLowerCase().includes(q.toLowerCase()) ||
+    (p.sku||'').toLowerCase().includes(q.toLowerCase())
+  ).slice(0,8);
+  if (!res.length) { sg.style.display='none'; return; }
+  sg.style.display = 'block';
+  sg.innerHTML = res.map(p=>`
+    <div class="sug-item" onclick="pdvAdd('${p.id}')">
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:600">${p.nome}</div>
+        <div class="ncm">NCM ${p.ncm} · ${p.unidade} · CFOP ${p.cfop}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-weight:600">${R$(p.preco_venda)}</div>
+        <span class="badge ${p.estoque<=p.estoque_min?'b-warn':'b-ok'}">${p.estoque} ${p.unidade}</span>
+      </div>
+    </div>`).join('');
+}
+
+function pdvAdd(id) {
+  const p = produtos.find(x=>x.id===id);
+  if (!p) return;
+  const ex = carrinho.find(x=>x.id===id);
+  if (ex) ex.qtd++; else carrinho.push({...p, qtd:1});
+  el('pdv-sugs').style.display='none';
+  el('pdv-busca').value='';
+  pdvRender();
+}
+
+function pdvRender() {
+  if (!carrinho.length) {
+    html('pdv-cart','<tr><td colspan="6" class="ph">Nenhum item adicionado.</td></tr>');
+  } else {
+    html('pdv-cart', carrinho.map((it,i)=>`
+      <tr>
+        <td><div style="font-size:12px;font-weight:600">${it.nome}</div>
+          <div class="ncm">NCM ${it.ncm} · CFOP ${it.cfop} · CSOSN ${it.csosn}</div></td>
+        <td style="color:var(--muted)">${it.unidade}</td>
+        <td><div class="qtd-ctrl">
+          <button onclick="pdvQtd(${i},-1)">−</button>
+          <input type="number" value="${it.qtd}" min="0.001" step="0.001" onchange="pdvQtdDireto(${i},this.value)" style="width:48px"/>
+          <button onclick="pdvQtd(${i},1)">+</button>
+        </div></td>
+        <td>${R$(it.preco_venda)}</td>
+        <td style="font-weight:600">${R$(it.qtd*it.preco_venda)}</td>
+        <td><button onclick="pdvDel(${i})" style="color:var(--red);border:none;background:none;font-size:16px;padding:2px 4px">×</button></td>
+      </tr>`).join(''));
+  }
+  pdvAtualizaTotais();
+}
+
+function pdvQtd(i,d)       { carrinho[i].qtd=Math.max(0.001,parseFloat((carrinho[i].qtd+d).toFixed(3))); pdvRender(); }
+function pdvQtdDireto(i,v) { const n=parseFloat(v); if(n>0){carrinho[i].qtd=n;} pdvRender(); }
+function pdvDel(i)         { carrinho.splice(i,1); pdvRender(); }
+
+function pdvCpf(v) {
+  cpfAtivo = v;
+  el('cpf-sim').className = v ? 'btn-ok' : '';
+  el('cpf-nao').className = v ? '' : 'btn-ok';
+  el('cpf-wrap').style.display = v ? 'block' : 'none';
+}
+
+function maskDoc(inp) {
+  let v = inp.value.replace(/\D/g,'');
+  if (v.length<=11) v=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+  else v=v.replace(/(\d{2})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1/$2').replace(/(\d{4})(\d{1,2})$/,'$1-$2');
+  inp.value = v;
+}
+
+function pdvAtualizaTotais() {
+  const s = carrinho.reduce((a,it)=>a+it.qtd*it.preco_venda, 0);
+  const se = el('pdv-sub'); if(se) se.textContent = R$(s);
+  const te = el('pdv-tot'); if(te) te.textContent = R$(s);
+  const td = el('pdv-tipodoc');
+  const be = el('pdv-btn'); if(be && td) be.textContent = `Finalizar — Emitir ${td.value==='nfce'?'NFC-e':'NF-e'}`;
+  if (s > 0) pdvQR(s);
+}
+
+function pdvQR(v) {
+  const svg = el('pdv-qr'); if(!svg) return;
+  const seed=Math.floor(v*100), m=4, c=Math.floor(90/m); let cells='';
+  for(let r=0;r<c;r++) for(let col=0;col<c;col++) {
+    if((r<7&&col<7)||(r<7&&col>c-8)||(r>c-8&&col<7)||(r*c+col+seed)%11<4)
+      cells+=`<rect x="${col*m}" y="${r*m}" width="${m}" height="${m}" fill="var(--text)"/>`;
+  }
+  svg.innerHTML=`<rect width="90" height="90" fill="var(--surface)"/>${cells}
+    <rect x="29" y="37" width="16" height="16" rx="3" fill="#00b67a"/>
+    <text x="37" y="49" font-size="10" fill="white" text-anchor="middle" font-weight="bold">P</text>`;
+  const ql = el('pdv-qrlbl'); if(ql) ql.textContent=`PIX Dinâmico · ${R$(v)}`;
+}
+
+async function pdvEmitir() {
+  if (!carrinho.length) { toast('Adicione itens ao carrinho','warn'); return; }
+  const btn = el('pdv-btn'), st = el('pdv-status');
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Emitindo...';
+  if(st) st.textContent='Enviando para o Bling...';
+  try {
+    const cpfEl = el('pdv-cpf');
+    const td = el('pdv-tipodoc');
+    const pg = el('pdv-pgto');
+    const d = await post('/api/vendas', {
+      canal:'balcao', tipo_doc: td?td.value:'nfce',
+      cliente_nome:'CONSUMIDOR FINAL',
+      cpf_nota: cpfAtivo && cpfEl ? (cpfEl.value||null) : null,
+      forma_pgto: pg?pg.value:'pix_dinamico',
+      itens: carrinho.map(it=>({produto_id:it.id, quantidade:it.qtd}))
+    });
+    const f = d.resultado_fiscal;
+    if (f.status==='autorizada') {
+      toast(`✅ ${d.numero} autorizada! ${f.simulado?'(simulação)':''}`, 'ok');
+      if(st) st.innerHTML=`✅ ${d.numero} · ${(f.chave_acesso||'').substring(0,20)}...`;
+      carrinho=[]; pdvRender();
+      carregarProdutos_pdv();
+    } else if (f.status==='pendente') {
+      toast('⏳ Aguardando SEFAZ...','warn');
+      if(st) st.textContent='Pendente — verifique em Documentos Fiscais';
+      carrinho=[]; pdvRender();
+    } else {
+      toast('❌ '+f.mensagem,'err');
+      if(st) st.textContent='Rejeitada: '+f.mensagem;
+    }
+  } catch(e) {
+    toast('Erro: '+e.message,'err');
+    if(st) st.textContent='Erro: '+e.message;
+  } finally {
+    btn.disabled=false;
+    const td=el('pdv-tipodoc');
+    btn.textContent=`Finalizar — Emitir ${td&&td.value==='nfce'?'NFC-e':'NF-e'}`;
+  }
+}
+
+// ── FISCAL ────────────────────────────────────────────────────────────────────
+async function carregarFiscal() {
+  try {
+    const vs = await get('/api/vendas'+(filtroFiscal?'?status='+filtroFiscal:''));
+    const CLS = {autorizada:'b-ok',pendente:'b-warn',rejeitada:'b-err',enviando:'b-info',rascunho:'b-gray'};
+    html('fiscal-tbody', vs.length ? vs.map(v=>`
+      <tr>
+        <td><span class="badge b-info">${v.tipo_doc.toUpperCase()}</span></td>
+        <td style="font-family:monospace;font-size:10px">${v.numero}</td>
+        <td style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.cliente_nome}</td>
+        <td style="font-weight:600">${R$(v.total)}</td>
+        <td style="font-size:11px;color:var(--muted)">${v.operador_nome||'—'}</td>
+        <td style="font-size:11px;color:var(--muted)">${dt(v.criado_em)}</td>
+        <td><span class="badge ${CLS[v.status_fiscal]||'b-gray'}">${v.status_fiscal}</span></td>
+        <td style="display:flex;gap:4px">
+          ${v.danfe_url?`<button style="font-size:10px;padding:3px 8px">DANFE</button>`:''}
+          ${v.status_fiscal==='rejeitada'?`<button class="btn-danger" style="font-size:10px;padding:3px 8px" onclick="fiscalReemitir('${v.id}')">Reemitir</button>`:''}
+          ${v.observacoes?`<span title="${v.observacoes}" style="cursor:help">⚠️</span>`:''}
+        </td>
+      </tr>`).join('') : '<tr><td colspan="8" class="ph">Nenhum documento encontrado.</td></tr>');
+  } catch(e) { toast('Erro no fiscal: '+e.message,'err'); }
+}
+
+function fiscalFiltrar(s) {
+  filtroFiscal = s;
+  ['all','aut','pend','rej'].forEach(id => {
+    const e=el('flt-'+id); if(e) e.className=e.className.replace(' btn-ok','');
+  });
+  const mapa={'':'flt-all','autorizada':'flt-aut','pendente':'flt-pend','rejeitada':'flt-rej'};
+  const e=el(mapa[s]); if(e) e.classList.add('btn-ok');
+  carregarFiscal();
+}
+
+async function fiscalReemitir(id) {
+  try {
+    toast('Reemitindo...','warn');
+    const d = await post(`/api/vendas/${id}/reemitir`, {});
+    toast(d.status==='autorizada'?'✅ Reemitida!':'Status: '+d.status, d.status==='autorizada'?'ok':'warn');
+    carregarFiscal();
+  } catch(e) { toast('Erro: '+e.message,'err'); }
+}
+
+// ── ESTOQUE ───────────────────────────────────────────────────────────────────
+async function carregarEstoque() {
+  try {
+    const d = await get('/api/estoque');
+    const SC = {ok:'b-ok',critico:'b-warn',zerado:'b-err'};
+    html('est-tbody', d.produtos.map(p=>`
+      <tr>
+        <td style="font-size:12px"><div style="font-weight:600">${p.nome}</div>
+          <div class="ncm">${p.sku} · ${p.categoria}</div></td>
+        <td style="color:var(--muted)">${p.unidade}</td>
+        <td style="font-weight:600;color:${p.status==='ok'?'var(--green)':p.status==='critico'?'var(--amber)':'var(--red)'}">${p.estoque}</td>
+        <td><span class="badge ${SC[p.status]||'b-gray'}">${p.status}</span></td>
+      </tr>`).join(''));
+    const ICO = {entrada:'↑',saida_venda:'↓',ajuste:'≡'};
+    html('est-movs', d.movimentacoes.length ? d.movimentacoes.map(m=>`
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
+        <span style="font-size:14px;color:${m.tipo.includes('saida')?'var(--red)':'var(--green)'}">${ICO[m.tipo]||'·'}</span>
+        <span style="flex:1;color:var(--muted)">${m.tipo.replace(/_/g,' ')}</span>
+        <span style="font-weight:600">${m.quantidade}</span>
+        <span style="color:var(--hint);font-size:10px">${m.referencia||''}</span>
+      </div>`).join('') : '<div class="ph">Sem movimentações</div>');
+  } catch(e) { toast('Erro no estoque: '+e.message,'err'); }
+}
+
+// ── PRODUTOS ──────────────────────────────────────────────────────────────────
+async function carregarProdutos(q) {
+  if (q===undefined) q = el('prod-busca')?.value||'';
+  try {
+    const ps = await get('/api/produtos?q='+encodeURIComponent(q));
+    html('prod-tbody', ps.length ? ps.map(p=>`
+      <tr>
+        <td style="font-family:monospace;font-size:10px">${p.sku}</td>
+        <td style="font-weight:600">${p.nome}</td>
+        <td style="font-family:monospace;font-size:10px">${p.ncm}</td>
+        <td style="color:var(--muted)">${p.unidade}</td>
+        <td style="font-weight:600;color:${p.estoque_critico?'var(--amber)':'var(--green)'}">${p.estoque}</td>
+        <td style="font-weight:600">${R$(p.preco_venda)}</td>
+        <td><span class="badge ${p.estoque_critico?'b-warn':'b-ok'}">${p.estoque_critico?'crítico':'ok'}</span></td>
+      </tr>`).join('') : '<tr><td colspan="7" class="ph">Nenhum produto.</td></tr>');
+  } catch(e) { toast('Erro: '+e.message,'err'); }
+}
+
+function abrirModalProduto()  { el('ov-produto').style.display='flex'; }
+function fecharModalProduto() { el('ov-produto').style.display='none'; }
+
+async function salvarProduto() {
+  const nome = el('np-nome').value.trim();
+  const sku  = el('np-sku').value.trim();
+  const ncm  = el('np-ncm').value.trim();
+  const pv   = parseFloat(el('np-venda').value||'0');
+  if (!nome||!sku||!ncm||!pv) { toast('Preencha: Nome, SKU, NCM e Preço venda','warn'); return; }
+  try {
+    await post('/api/produtos', {
+      nome, sku, ncm,
+      cfop:  el('np-cfop').value||'5102',
+      csosn: el('np-csosn').value||'400',
+      unidade: el('np-un').value||'UN',
+      categoria: el('np-cat').value||'Geral',
+      preco_custo:  parseFloat(el('np-custo').value||'0'),
+      preco_venda:  pv,
+      estoque:    parseFloat(el('np-estoque').value||'0'),
+      estoque_min: parseFloat(el('np-estmin').value||'0'),
+    });
+    toast('Produto cadastrado!','ok');
+    fecharModalProduto();
+    carregarProdutos('');
+    carregarProdutos_pdv();
+  } catch(e) { html('np-err', e.message); el('np-err').style.display='block'; }
+}
+
+// ── CLIENTES ──────────────────────────────────────────────────────────────────
+async function carregarClientes(q) {
+  if (q===undefined) q='';
+  try {
+    const cs = await get('/api/clientes?q='+encodeURIComponent(q));
+    html('cli-tbody', cs.length ? cs.map(c=>`
+      <tr>
+        <td style="font-weight:600">${c.nome}</td>
+        <td style="font-family:monospace;font-size:11px">${c.cpf_cnpj||'—'}</td>
+        <td><span class="badge ${c.tipo_pessoa==='J'?'b-info':'b-gray'}">${c.tipo_pessoa==='J'?'Jurídica':'Física'}</span></td>
+        <td style="color:var(--muted)">${c.cidade||'—'}</td>
+        <td style="color:var(--muted)">${c.telefone||'—'}</td>
+      </tr>`).join('') : '<tr><td colspan="5" class="ph">Nenhum cliente.</td></tr>');
+  } catch(e) { toast('Erro: '+e.message,'err'); }
+}
+
+// ── CONFIGURAÇÕES ─────────────────────────────────────────────────────────────
+async function salvarBling() {
+  const t = el('cfg-token')?.value.trim();
+  if (!t) { toast('Cole o token do Bling primeiro','warn'); return; }
+  try {
+    await post('/api/config/bling', {access_token:t});
+    const s = await get('/api/config/bling/status');
+    const cs = el('cfg-status');
+    const bb = el('bling-badge');
+    if (s.modo==='producao') {
+      if(cs) cs.innerHTML=`✅ Conectado como <strong>${s.usuario}</strong>.`;
+      if(bb) { bb.className='badge b-ok'; bb.textContent='Bling: conectado'; }
+      toast('Bling conectado com sucesso!','ok');
+    } else {
+      if(cs) cs.textContent=`⚠️ Token inválido (${s.modo}).`;
+      toast('Token inválido','err');
+    }
+  } catch(e) { toast('Erro: '+e.message,'err'); }
+}
+
+// ── USUÁRIOS ──────────────────────────────────────────────────────────────────
+const COR_R  = {admin:'#b52a2a',gerente:'#1a6fc4',vendedor:'#2d6a1f',estoquista:'#8a5200'};
+const NOME_R = {admin:'Administrador',gerente:'Gerente',vendedor:'Vendedor',estoquista:'Estoquista'};
+const MODS = {
+  dashboard:'📊 Dashboard', pdv:'🖥️ PDV / Caixa', fiscal:'📄 Fiscal',
+  estoque:'📦 Estoque', produtos:'🔧 Produtos', clientes:'👤 Clientes',
+  relatorios:'📈 Relatórios', configuracoes:'⚙️ Configurações', usuarios:'👥 Usuários'
+};
+
+async function usrCarregar() {
+  try {
+    const r = await req('GET', '/api/auth/usuarios');
+    if (!r.ok) { html('usr-lista','<div class="ph" style="color:var(--red)">Sem permissão.</div>'); return; }
+    usrCache = await r.json();
+    usrRenderLista();
+  } catch(e) { html('usr-lista','<div class="ph">Erro ao carregar.</div>'); }
+}
+
+function usrRenderLista() {
+  html('usr-lista', usrCache.map(u=>`
+    <div class="usr-item ${usrEditId===u.id?'sel':''}" onclick="usrAbrirForm('${u.id}')">
+      <div class="usr-av" style="background:${COR_R[u.role]||'#888'}">${u.nome[0].toUpperCase()}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${u.nome}</div>
+        <div style="font-size:10px;color:var(--hint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${u.email}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">
+        <span style="font-size:9px;font-weight:600;padding:2px 6px;border-radius:20px;background:${COR_R[u.role]||'#888'}22;color:${COR_R[u.role]||'#888'}">${NOME_R[u.role]||u.role}</span>
+        ${!u.ativo?'<span style="font-size:9px;color:var(--red)">● Inativo</span>':u.primeiro_login?'<span style="font-size:9px;color:var(--amber)">⏳ Aguard. senha</span>':'<span style="font-size:9px;color:var(--green)">● Ativo</span>'}
+      </div>
+    </div>`).join(''));
+}
+
+async function usrAbrirForm(id) {
+  usrEditId = id;
+  usrRenderLista();
+  if (!usrRolesCache) {
+    const r = await req('GET','/api/auth/roles');
+    usrRolesCache = await r.json();
+  }
+  if (id) {
+    const u = usrCache.find(x=>x.id===id);
+    usrRole = u.role;
+    usrPerms = {};
+    Object.entries(u.permissoes).forEach(([m,p])=>{ usrPerms[m]=p.visualizar; });
+    usrMostrarForm(u);
+  } else {
+    usrRole = 'vendedor';
+    usrAplicarPermsRole();
+    usrMostrarForm(null);
+  }
+}
+
+function usrMostrarForm(u) {
+  const painel = el('usr-painel');
+  const isEdit = !!u;
+  painel.innerHTML = `
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border)">
+        <div id="usr-av-form" style="width:44px;height:44px;border-radius:50%;background:${isEdit?COR_R[u.role]||'#888':'var(--blue)'};display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0">${isEdit?u.nome[0].toUpperCase():'?'}</div>
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:700">${isEdit?'Editar Usuário':'Novo Usuário'}</div>
+          <div style="font-size:11px;color:var(--muted)">${isEdit?u.email:'Preencha os dados abaixo'}</div>
+        </div>
+        <button onclick="usrFecharForm()" style="font-size:18px;padding:2px 8px;border:none;background:none;color:var(--hint);cursor:pointer">×</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+        <div style="grid-column:1/-1">
+          <label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase">NOME COMPLETO *</label>
+          <input id="u-nome" value="${isEdit?u.nome:''}" placeholder="Carlos da Silva" oninput="usrAvatarForm()"/>
+        </div>
+        <div style="grid-column:1/-1">
+          <label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase">E-MAIL *</label>
+          <input id="u-email" type="email" value="${isEdit?u.email:''}" placeholder="carlos@matcon.com.br" ${isEdit?'disabled':''} style="${isEdit?'background:var(--gray);color:var(--muted)':''}"/>
+        </div>
+        <div>
+          <label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase">NOME NA NOTA FISCAL</label>
+          <input id="u-op" value="${isEdit?u.nome_operador||'':''}" placeholder="Carlos"/>
+        </div>
+        <div ${isEdit?'style="display:none"':''}>
+          <label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase">SENHA INICIAL *</label>
+          <input id="u-senha" type="password" placeholder="Mín. 6 caracteres"/>
+        </div>
+      </div>
+      <div style="margin-bottom:14px">
+        <label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:8px;text-transform:uppercase">PERFIL BASE</label>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+          ${['vendedor','gerente','estoquista','admin'].map(r=>`
+            <div class="role-opt ${usrRole===r?'sel':''}" data-role="${r}" onclick="usrSelecionarRole('${r}')">
+              <div style="font-size:18px;margin-bottom:4px">${{vendedor:'🖥️',gerente:'📊',estoquista:'📦',admin:'🔑'}[r]}</div>
+              <div style="font-size:11px;font-weight:600">${NOME_R[r]}</div>
+              <div style="font-size:10px;color:var(--muted)">${{vendedor:'PDV e clientes',gerente:'Vendas + estoque',estoquista:'Estoque e prod.',admin:'Acesso total'}[r]}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div style="margin-bottom:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase">ACESSO POR MÓDULO</label>
+          <button onclick="usrMarcarTodos(true)" style="font-size:10px;padding:3px 8px">Marcar todos</button>
+        </div>
+        <div id="u-modulos" style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden"></div>
+      </div>
+      <div id="u-err" class="lerr" style="margin-bottom:10px"></div>
+      ${isEdit ? `
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <button onclick="abrirReset('${u.id}','${u.nome}')" style="flex:1;padding:8px;font-size:12px">🔑 Restaurar Senha</button>
+          <button onclick="usrToggleAtivo('${u.id}','${u.nome}',${u.ativo})" class="${u.ativo?'btn-danger':''}" style="flex:1;padding:8px;font-size:12px">${u.ativo?'🚫 Desativar':'✅ Reativar'}</button>
+        </div>` : ''}
+      <div style="display:flex;gap:8px">
+        <button onclick="usrFecharForm()" style="flex:1;padding:10px">Cancelar</button>
+        <button class="btn-ok" id="u-salvar-btn" onclick="usrSalvar()" style="flex:2;padding:10px;font-size:13px;font-weight:600">${isEdit?'Salvar Alterações':'Criar Usuário'}</button>
+      </div>
+    </div>`;
+  usrRenderModulos();
+}
+
+function usrFecharForm() {
+  usrEditId = null;
+  usrRenderLista();
+  el('usr-painel').innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:400px;gap:12px;color:var(--hint)">
+      <div style="font-size:48px">👥</div>
+      <div style="font-size:13px;font-weight:600;color:var(--muted)">Gestão de Usuários</div>
+      <div style="font-size:12px;text-align:center;max-width:240px;line-height:1.6">Selecione um usuário ou clique em Novo Usuário.</div>
+    </div>`;
+}
+
+function usrAvatarForm() {
+  const n = el('u-nome')?.value||'?';
+  const av = el('usr-av-form');
+  if (av) { av.textContent=n.trim()[0].toUpperCase()||'?'; av.style.background=COR_R[usrRole]||'var(--blue)'; }
+}
+
+async function usrSelecionarRole(role) {
+  usrRole = role;
+  usrAplicarPermsRole();
+  usrRenderModulos();
+  usrAvatarForm();
+  document.querySelectorAll('.role-opt').forEach(e=>e.classList.toggle('sel', e.dataset.role===role));
+}
+
+function usrAplicarPermsRole() {
+  usrPerms = {};
+  if (!usrRolesCache) return;
+  const rd = usrRolesCache.find(x=>x.id===usrRole);
+  if (!rd) return;
+  Object.entries(rd.permissoes).forEach(([m,p])=>{ usrPerms[m]=p.visualizar; });
+}
+
+function usrRenderModulos() {
+  const cont = el('u-modulos');
+  if (!cont) return;
+  cont.innerHTML = Object.entries(MODS).map(([mod, nome])=>{
+    const on = !!usrPerms[mod];
+    return `<div class="mod-row">
+      <span style="font-size:14px;width:20px;text-align:center">${nome.split(' ')[0]}</span>
+      <span style="font-size:12px;font-weight:500;flex:1">${nome.split(' ').slice(1).join(' ')}</span>
+      <button class="tog ${on?'on':'off'}" id="tog-${mod}" onclick="usrTogMod('${mod}')"></button>
+    </div>`;
+  }).join('');
+}
+
+function usrTogMod(mod) {
+  usrPerms[mod] = !usrPerms[mod];
+  const b = el('tog-'+mod);
+  if(b){ b.classList.toggle('on',usrPerms[mod]); b.classList.toggle('off',!usrPerms[mod]); }
+}
+
+function usrMarcarTodos(v) {
+  Object.keys(MODS).forEach(m=>{ usrPerms[m]=v; });
+  usrRenderModulos();
+}
+
+async function usrSalvar() {
+  const err = el('u-err'); if(err) err.style.display='none';
+  const nome  = el('u-nome')?.value.trim()||'';
+  const email = el('u-email')?.value.trim()||'';
+  const op    = el('u-op')?.value.trim()||nome.split(' ')[0];
+  const senha = el('u-senha')?.value||'';
+  if (!nome)  { if(err){err.textContent='Nome obrigatório.';err.style.display='block';} return; }
+  if (!email) { if(err){err.textContent='E-mail obrigatório.';err.style.display='block';} return; }
+
+  const perms = {};
+  Object.keys(MODS).forEach(mod=>{
+    const v = !!usrPerms[mod];
+    perms[mod] = {visualizar:v, criar:v, editar:v, excluir:v};
+  });
+
+  const btn = el('u-salvar-btn');
+  if(btn){ btn.disabled=true; btn.textContent='Salvando...'; }
+  try {
+    let d;
+    if (usrEditId) {
+      d = await put_(`/api/auth/usuarios/${usrEditId}`, {nome, role:usrRole, nome_operador:op, permissoes_custom:perms});
+    } else {
+      if (senha.length < 6) { if(err){err.textContent='Senha mínimo 6 caracteres.';err.style.display='block';} return; }
+      d = await post('/api/auth/usuarios', {nome, email, senha, role:usrRole, nome_operador:op, permissoes_custom:perms});
+    }
+    toast(d.mensagem||'Usuário salvo!','ok');
+    usrFecharForm();
+    await usrCarregar();
+  } catch(e) {
+    if(err){ err.textContent=e.message; err.style.display='block'; }
+  } finally {
+    if(btn){ btn.disabled=false; btn.textContent=usrEditId?'Salvar Alterações':'Criar Usuário'; }
+  }
+}
+
+async function usrToggleAtivo(id, nome, ativo) {
+  if (!confirm(`${ativo?'Desativar':'Reativar'} o usuário "${nome}"?`)) return;
+  try {
+    const d = ativo ? await del_(`/api/auth/usuarios/${id}`) : await put_(`/api/auth/usuarios/${id}`,{ativo:true});
+    toast(d.mensagem,'ok');
+    usrFecharForm();
+    await usrCarregar();
+  } catch(e) { toast(e.message,'err'); }
+}
+
+// ── RESET SENHA ───────────────────────────────────────────────────────────────
+function abrirReset(id, nome) {
+  resetId = id;
+  const e = el('reset-alvo'); if(e) e.textContent = 'Usuário: '+nome;
+  const n=el('r-nova'); if(n) n.value='';
+  const c=el('r-conf'); if(c) c.value='';
+  const er=el('r-err'); if(er) er.style.display='none';
+  el('ov-reset').style.display = 'flex';
+}
+
+function fecharReset() { el('ov-reset').style.display='none'; resetId=null; }
+
+async function confirmarReset() {
+  const nova = el('r-nova')?.value||'';
+  const conf = el('r-conf')?.value||'';
+  const err  = el('r-err');
+  if(err) err.style.display='none';
+  if (nova.length < 6) { if(err){err.textContent='Mínimo 6 caracteres.';err.style.display='block';} return; }
+  if (nova !== conf)   { if(err){err.textContent='Senhas não coincidem.';err.style.display='block';} return; }
+  try {
+    const d = await post(`/api/auth/usuarios/${resetId}/reset-senha`, {nova_senha:nova});
+    fecharReset();
+    toast('✅ '+d.mensagem,'ok');
+    await usrCarregar();
+  } catch(e) { if(err){err.textContent=e.message;err.style.display='block';} }
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+initAuth();
+</script>
+</body>
+</html>
