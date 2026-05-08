@@ -121,3 +121,4 @@ erp-matcon-frontend/         → deploy no Vercel
 ├── index.html               # App completo em um arquivo
 └── vercel.json              # Configuração SPA
 ```
+# erp_matcon
